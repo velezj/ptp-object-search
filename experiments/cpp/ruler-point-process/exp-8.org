@@ -1,0 +1,296 @@
+#+TITLE: cpp :: ruler process :: experiment 8
+#+AUTHOR: Javier J. Velez
+#+DATE:
+
+
+
+* Build Average Cells visited (with stderr)
+
+
+  First we find all of the trace files (planner.trace) for the
+  experiment and count them.
+
+  #+name: total_trace_files_found
+  #+begin_src sh :results output :exports none
+    find . -iname planner.trace | wc -l  
+  #+end_src
+  
+  #+RESULTS: total_trace_files_found
+  : 99
+
+  Next we sum the total number of cells visited in all hte trace
+  files.  Here we take hte number of cells visited to be the number of
+  lines in the trace file since each observation is a line.
+
+  #+name: sum_all_cells_visited
+  #+begin_src sh :results output :exports none
+    find . -iname planner.trace | xargs wc -l | tail -n 1 | cut -d " " -f 3
+  #+end_src
+
+  #+RESULTS: sum_all_cells_visited
+  : 6474
+
+  Ok, now compute the average number of observations for hte
+  experiment trials run (just divide sum by count).
+  
+  #+name: average_cells_visited
+  #+begin_src python :results value :var sumt=sum_all_cells_visited :var count=total_trace_files_found :exports results
+    return float(sumt) / float(count)
+  #+end_src
+
+  #+RESULTS: average_cells_visited
+
+
+  Get a list of all the observations taken for all trials
+  
+  #+name: cells_visited_trial_list
+  #+begin_src python :result value :exports results
+    import subprocess
+    res = []
+    trace_files = subprocess.check_output( [ 'find', '.', '-iname', 'planner.trace'] )
+    #print "Found Files: " + str(trace_files)
+    for fn in trace_files.split( "\n" ):
+        if len(fn) > 1:
+            with open( fn ) as f:
+                # count the lines
+                line_count = 0
+                for line in f:
+                    line_count += 1
+                res.append( line_count )
+    #print "RES: " + str(res)
+    return res
+  #+end_src
+
+  #+RESULTS: cells_visited_trial_list
+  | 80 | 68 | 58 | 82 | 45 | 40 | 59 | 47 | 70 | 67 | 78 | 79 | 72 | 77 | 76 | 31 | 79 | 49 | 83 | 61 | 32 | 63 | 59 | 54 | 84 | 43 | 40 | 37 | 85 | 46 | 62 | 81 | 39 | 42 | 66 | 75 | 27 | 63 | 36 |
+
+  Compute the standard error estimate from the experiment trials.
+  
+  #+name: standard_error_cells_visited
+  #+begin_src python :result value :var mean=average_cells_visited :var obs=cells_visited_trial_list :exports results
+    import math
+    total = 0.0
+    for num_ob in obs:
+        total += ( ( float(num_ob) - float(mean) ) ** 2 )
+    return math.sqrt( total / float( len( obs ) ) ) / math.sqrt( float( len( obs)))
+  #+end_src
+
+  #+RESULTS: standard_error_cells_visited
+  : 2.77496545037
+
+* Plot cells visited by experiment
+
+  We want to plot the mean number of found objects at every
+  observation.  We want to do this by reading all of the trace files,
+  and creating a large vector up to the largest observation taken from
+  all hte trace files.  We then compute the average objects found
+  after every observation as well as the stderr.
+
+  #+name: average_and_stderr_objects_found_per_observation
+  #+begin_src python :results value :exports results
+    import subprocess
+    import math
+    trace_files = subprocess.check_output( [ 'find', '.', '-iname', 'planner.trace'] )
+    
+    # ok, we will keep track of the sum of found objects per observation
+    # as well as the numbre of trial which actually got to that observation
+    vec_n = []
+    vec_delta = []
+    vec_mean = []
+    vec_m2 = []
+    
+    # open every trace file and include it's output
+    for fn in trace_files.split( "\n" ):
+        if len(fn) < 1:
+            continue
+    
+        # open the trace file
+        with open( fn ) as f:
+    
+            # ok, now read in a line (an observation) and parse it
+            obs_id = 0
+            for line in f:
+                if len(line) < 1:
+                    continue
+                toks = line.split( " " )
+                total_found = int( toks[3] )
+                
+                # increment the mean/variance estimate
+                if len( vec_n ) <= obs_id:
+                    vec_n.append( 0 )
+                    vec_delta.append( 0.0 )
+                    vec_mean.append( 0.0 )
+                    vec_m2.append( 0.0 )
+                vec_n[ obs_id ] += 1
+                vec_delta[ obs_id ] = float(total_found) - vec_mean[ obs_id ]
+                vec_mean[ obs_id ] += vec_delta[ obs_id ] / vec_n[ obs_id ]
+                vec_m2[ obs_id ] += vec_delta[ obs_id ] * ( total_found - vec_mean[ obs_id ] )
+    
+                obs_id += 1
+    
+            # The last observation does not show up in the trace, so add it
+            total_found = 10
+            if len( vec_n ) <= obs_id:
+                vec_n.append( 0 )
+                vec_delta.append( 0.0 )
+                vec_mean.append( 0.0 )
+                vec_m2.append( 0.0 )
+            vec_n[ obs_id ] += 1
+            vec_delta[ obs_id ] = float(total_found) - vec_mean[ obs_id ]
+            vec_mean[ obs_id ] += vec_delta[ obs_id ] / vec_n[ obs_id ]
+            vec_m2[ obs_id ] += vec_delta[ obs_id ] * ( total_found - vec_mean[ obs_id ] )
+    
+    # now that we have the stats, actually return a matrix of mean and stderr
+    res = []
+    for i in xrange( len(vec_n) ):
+        mean = vec_mean[ i ]
+        stderr = 0
+        if vec_n[ i ] > 1:
+            stderr = math.sqrt( vec_m2[ i ] / ( vec_n[ i ] - 1 ) ) / math.sqrt( vec_n[ i ] )
+        res.append( [ mean, stderr ] )
+    return res
+    
+  #+end_src
+
+  #+RESULTS: average_and_stderr_objects_found_per_observation
+  |                4.0 |                 0.0 |
+  |                4.0 |                 0.0 |
+  |                4.0 |                 0.0 |
+  |                4.0 |                 0.0 |
+  |  4.102564102564103 | 0.07156315024865237 |
+  |  4.153846153846154 |  0.0864540749152333 |
+  |  4.205128205128205 | 0.09843229435255313 |
+  |  4.307692307692308 | 0.11705937080810494 |
+  |  4.307692307692308 | 0.11705937080810494 |
+  |  4.358974358974359 | 0.12450809818807876 |
+  |  4.358974358974359 | 0.12450809818807876 |
+  |  4.410256410256411 | 0.13100848690430872 |
+  |  4.461538461538462 | 0.13669589486748285 |
+  |  4.461538461538462 | 0.13669589486748285 |
+  |  4.564102564102565 | 0.14599868649175188 |
+  |  4.564102564102565 | 0.14599868649175188 |
+  |  4.564102564102565 | 0.14599868649175188 |
+  |  4.615384615384616 | 0.14974285027455003 |
+  |  4.717948717948717 |  0.1556351227350984 |
+  |   4.82051282051282 |  0.1595869959416408 |
+  |  4.871794871794871 | 0.16088271677005372 |
+  |  4.871794871794871 | 0.16088271677005372 |
+  |  4.871794871794871 | 0.16088271677005372 |
+  | 4.9743589743589745 | 0.17803538552270423 |
+  | 5.0256410256410255 | 0.17803538552270426 |
+  | 5.0256410256410255 | 0.17803538552270426 |
+  |  5.076923076923077 |   0.177646236673731 |
+  |   5.23076923076923 |  0.2156543520155269 |
+  |  5.105263157894737 | 0.18004849071918594 |
+  |  5.105263157894737 | 0.18004849071918594 |
+  |  5.210526315789474 |  0.1775360630399314 |
+  |  5.315789473684211 | 0.21700555924303475 |
+  |  5.243243243243242 | 0.21012439260703783 |
+  |  5.166666666666666 | 0.16666666666666666 |
+  |  5.333333333333333 | 0.17817416127494956 |
+  |  5.444444444444444 |  0.1887487809040603 |
+  |  5.666666666666667 | 0.23231068414572312 |
+  |  5.600000000000001 | 0.22899121116303991 |
+  |  5.529411764705883 | 0.20784650049409492 |
+  |   5.76470588235294 | 0.24998689280938619 |
+  |  5.757575757575758 |  0.2718842188625206 |
+  |  5.483870967741937 | 0.20672025532383506 |
+  |  5.612903225806451 | 0.25263097041872534 |
+  |                5.6 | 0.24259137394524904 |
+  |  5.655172413793103 | 0.22347381718647796 |
+  |  5.724137931034483 | 0.25738621630764796 |
+  |  5.642857142857142 |  0.2530987098270155 |
+  |  5.555555555555555 | 0.24653342054454636 |
+  |  5.461538461538462 |  0.2092533924420837 |
+  |  5.538461538461538 | 0.25558842655132535 |
+  |  5.440000000000001 |  0.2166410241236255 |
+  |               5.52 | 0.20912516188477484 |
+  |                5.6 | 0.19999999999999998 |
+  |                5.6 | 0.19999999999999998 |
+  |               5.76 | 0.24000000000000005 |
+  |  5.666666666666664 | 0.15541746804005238 |
+  |  5.916666666666667 | 0.08333333333333333 |
+  |  6.083333333333333 | 0.08333333333333337 |
+  |  6.333333333333334 |  0.1965892748731962 |
+  |  6.434782608695652 | 0.25010738370840113 |
+  |  6.190476190476191 | 0.13127665478181164 |
+  | 6.3809523809523805 | 0.22335313142016333 |
+  |                6.5 |  0.2460209661583209 |
+  |  6.526315789473684 |  0.2997896050988607 |
+  |  6.235294117647059 | 0.16109486985446062 |
+  |  6.352941176470589 | 0.19061002054140766 |
+  |  6.470588235294119 | 0.27275348516163833 |
+  |              6.375 |  0.2719528145346787 |
+  |                6.4 |  0.2894987457822984 |
+  |  6.142857142857143 |  0.1428571428571429 |
+  | 6.2857142857142865 | 0.28571428571428575 |
+  |  6.307692307692308 | 0.20830867704194772 |
+  |  6.461538461538462 | 0.33234567684142874 |
+  |  6.166666666666667 | 0.16666666666666666 |
+  |  6.166666666666667 | 0.16666666666666666 |
+  |                6.5 |  0.3588702812826367 |
+  |  6.545454545454546 |  0.3899565561732221 |
+  |  6.800000000000001 |  0.4422166387140533 |
+  |  6.888888888888889 |  0.4843221048378526 |
+  |                8.0 |  0.5345224838248487 |
+  |  7.666666666666666 |  0.6146362971528592 |
+  |                8.0 |  0.6324555320336759 |
+  |                8.5 |  0.4999999999999999 |
+  |  8.666666666666666 |  0.6666666666666666 |
+  |                9.0 |                 1.0 |
+  |               10.0 |                   0 |
+
+  
+
+  Now we want to plot the mean and stderr for the found objects.
+  
+  #+name: plot_found_mean_and_stderr_per_observation
+  #+begin_src python :results value file :var mean_stderr=average_and_stderr_objects_found_per_observation :exports results
+    import os
+    import matplotlib
+    matplotlib.use( "Agg" )
+    import matplotlib.pyplot as plt
+    fig = plt.figure( figsize=(4,4) )
+    mean_vec = [ x[0] for x in mean_stderr ]
+    stderr_top_vec = [ x[0] + x[1] for x in mean_stderr ]
+    stderr_bot_vec = [ x[0] - x[1] for x in mean_stderr ]
+    plt.plot( mean_vec, 'b--', label="ruler process" )
+    plt.hold( True )
+    plt.plot( stderr_top_vec, 'r-' )
+    plt.plot( stderr_bot_vec, 'r-' )
+    
+    # now create the "mean" for the coverage algorithm for experiment 8
+    jumps = [ [ 0, 4 ],
+              [ 49, 6 ],
+              [ 73, 8 ],
+              [ 97, 10 ] ]
+    mean_cover = []
+    for i in xrange( 98 ):
+        mean_cover.append( 0 )
+    for jump in jumps:
+        start_idx = jump[0]
+        val = jump[1]
+        for i in xrange( start_idx, len( mean_cover ) ):
+            mean_cover[ i ] = val
+    
+    plt.plot( mean_cover, 'g--', label="coverage" )
+    
+    plt.title( 'Objects Found Per Observation' )
+    plt.xlabel( 'Cells Observed' )
+    plt.ylabel( 'Objects Found' )
+    plt.legend( loc='upper left', prop={'size': 'small'} )
+    
+    fig.tight_layout()
+    filename = 'plots/exp-8/found_mean_and_stderr.png'
+    try:
+        os.makedirs( 'plots/exp-8/' )
+    except:
+        pass
+    plt.savefig( filename )
+    return filename
+  #+end_src
+
+  #+CAPTION: The mean (dashed line) and standard error number of found objects (y axis) per observation (x axis) for the ruler process (red) and the coverage algorithm (green).  We see that the ruler process finds all objects (10 of them) faster and has a smoother average finding curve that the step-wise coverage algorithm.
+  #+RESULTS: plot_found_mean_and_stderr_per_observation
+  [[file:plots/exp-8/found_mean_and_stderr.png]]
+
