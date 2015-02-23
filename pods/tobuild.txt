@@ -10,9 +10,9 @@ ptp-object-search-common
 ptp-object-search-math-core
 ptp-object-search-probability-core
 ptp-object-search-point-process-core
-ptp-object-search-planner-core
 ptp-object-search-point-process-experiment-core
 ptp-object-search-igmm-point-process
 ptp-object-search-ruler-point-process
+ptp-object-search-planner-core
 ptp-object-search-experiments
 ptp-object-search-experiment-analysis
