@@ -100,3 +100,6 @@
 [submodule "pods/external/libbot2-latest-readonly"]
 	path = pods/external/libbot2-latest-readonly
 	url = https://github.com/velezj/pods.libbot2-latest-readonly.git
+[submodule "pods/external/nlopt-2.4.1"]
+	path = pods/external/nlopt-2.4.1
+	url = https://github.com/velezj/pods.nlopt-2.4.1.git
