@@ -8,7 +8,7 @@ velezj-pods-utils
 boost-1.54.0
 gsl-1.16
 unittest-cpp-latest
-libbot2-svn-clone
+libbot2-latest-readonly
 eigen-3.1.0
 openssl-1.0.1e
 cpp-netlib-0.10.1

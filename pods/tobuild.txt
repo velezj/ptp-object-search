@@ -1,19 +1,18 @@
 # list of subdirectories to build, one one each line.  Empty lines
 # and lines starting with '#' are ignored
 
-# mypod1
-#external
+external
 git-version-script
 erf-couchdb
 erf-results
-plot-server
-p2l-common
-p2l-math-core
-p2l-probability-core
-p2l-point-process-core
-p2l-planner-core
-p2l-point-process-experiment-core
-p2l-igmm-point-process
-p2l-ruler-point-process
-p2l-rawseeds-experiments
-p2l-trace-analysis
+erf-plot-server
+ptp-object-search-common
+ptp-object-search-math-core
+ptp-object-search-probability-core
+ptp-object-search-point-process-core
+ptp-object-search-planner-core
+ptp-object-search-point-process-experiment-core
+ptp-object-search-igmm-point-process
+ptp-object-search-ruler-point-process
+ptp-object-search-experiments
+ptp-object-search-experiment-analysis
