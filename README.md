@@ -12,6 +12,10 @@ Javier Velez Plan-To-Perceive Object Search System core
 
 ## Initial Build (requires manual edits _ewww_)
 
+1. create the PODS build directory 
+
+		mkdir -p ptp-object-search/build
+
 1. Edit ptp-object-search/pods/tobuild.txt and move the
    ptp-object-search-planner-core to be below the
    ptp-object-search-ruler-point-process line.
@@ -38,6 +42,9 @@ Javier Velez Plan-To-Perceive Object Search System core
    ruler and IGMM point process libraries built so they can be picked
    up by the planner core
 
+		cd ptp-object-search/pods
+		make 
+
 1. Edit back in the dependencies you removed. Easiest just to checkout
    the `ptp-object-search/pods/ptp-object-search-planner-core/CMakeLists.txt`
    again and discard the changes you made
@@ -50,6 +57,10 @@ Javier Velez Plan-To-Perceive Object Search System core
 		git checkout -- ptp-object-search/pods/tobuild.txt
 
 1. Second build. This should all build with no errors.
+
+		cd ptp-object-search/pods
+		make
+
 		
 
 # Running the experiments
