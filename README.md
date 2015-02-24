@@ -54,6 +54,36 @@ Javier Velez Plan-To-Perceive Object Search System core
 
 # Running the experiments
 
+## Frist, start Couchdb for storing the experiment results
+
+In the first terminal:
+	cd ptp-object-search/build/bin
+	./couchdb
+
+Select the world, model and planner wanted (these are named) as well
+as an experiment ID.  For example, I will choose:
+	- `world=rawseeds::biccoca_2009_02_27a`
+	- `model=rawseeds::ruler_2d_mean_008`
+	- `planner=rawseeds::one_action_entropy_reduction_planner_002_1e3grid`
+	- `ID=test-exp-001`
+
+run the experiment runner with chosen parameters
+
+	cd ptp-object-search/build/bin
+	./p2l-rawseeds-experiments-runner
+		--world=rawseeds::biccoca_2009_02_27a
+		--model=rawseeds::ruler_2d_mean_008
+		--planner=rawseeds::one_action_entropy_reduction_planner_002_1e3grid
+		--experiment-id=test-exp-001
+
+There are many more parameters which teh runner takes as command line
+arguments, see `./p2l-rawseeds-experiments-runner --help` for a
+complete list.
+
+The registered worlds, models and planners can be found inside
+`ptp-object-search/pods/ptp-object-search-experiments/src/register.cpp`
+
+
 # Hacking away at the code
 
 # References
