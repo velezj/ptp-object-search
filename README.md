@@ -62,10 +62,11 @@ In the first terminal:
 
 Select the world, model and planner wanted (these are named) as well
 as an experiment ID.  For example, I will choose:
-	- `world=rawseeds::biccoca_2009_02_27a`
-	- `model=rawseeds::ruler_2d_mean_008`
-	- `planner=rawseeds::one_action_entropy_reduction_planner_002_1e3grid`
-	- `ID=test-exp-001`
+
+- `world=rawseeds::biccoca_2009_02_27a`
+- `model=rawseeds::ruler_2d_mean_008`
+- `planner=rawseeds::one_action_entropy_reduction_planner_002_1e3grid`
+- `ID=test-exp-001`
 
 run the experiment runner with chosen parameters
 
