@@ -103,3 +103,6 @@
 [submodule "pods/external/nlopt-2.4.1"]
 	path = pods/external/nlopt-2.4.1
 	url = https://github.com/velezj/pods.nlopt-2.4.1.git
+[submodule "pods/ptp-object-search-point-process-entropy-planners"]
+	path = pods/ptp-object-search-point-process-entropy-planners
+	url = https://github.com/velezj/pods.ptp.object-search.point-process-entropy-planners.git

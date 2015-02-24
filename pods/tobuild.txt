@@ -1,7 +1,7 @@
 # list of subdirectories to build, one one each line.  Empty lines
 # and lines starting with '#' are ignored
 
-external
+#external
 git-version-script
 erf-couchdb
 erf-results
@@ -10,9 +10,10 @@ ptp-object-search-common
 ptp-object-search-math-core
 ptp-object-search-probability-core
 ptp-object-search-point-process-core
+ptp-object-search-planner-core
 ptp-object-search-point-process-experiment-core
 ptp-object-search-igmm-point-process
 ptp-object-search-ruler-point-process
-ptp-object-search-planner-core
+ptp-object-search-point-process-entropy-planners
 ptp-object-search-experiments
 ptp-object-search-experiment-analysis
