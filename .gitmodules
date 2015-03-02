@@ -106,3 +106,6 @@
 [submodule "pods/ptp-object-search-point-process-entropy-planners"]
 	path = pods/ptp-object-search-point-process-entropy-planners
 	url = https://github.com/velezj/pods.ptp.object-search.point-process-entropy-planners.git
+[submodule "pods/external/curl-7.41.0"]
+	path = pods/external/curl-7.41.0
+	url = https://github.com/velezj/pods.curl-7.41.0.git
